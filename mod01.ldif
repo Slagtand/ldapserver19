@@ -1,0 +1,32 @@
+dn: cn=Pau Pou,ou=usuaris,dc=edt,dc=org
+changetype: modify
+replace: mail
+mail: nowmail@edt.org
+-
+replace: homePhone
+homePhone: 111-222-333
+-
+delete: description
+-
+add: description
+description: nova descripció per a l'user Pau
+
+dn: cn=Anna Pou,ou=usuaris,dc=edt,dc=org
+changetype: delete
+
+dn: cn=Anna Pou,ou=usuaris,dc=edt,dc=org
+changetype: add
+objectClass: posixAccount
+objectClass: inetOrgPerson
+cn: Anna Pou
+cn: Anita Pou
+sn: Pou
+mail: anna@edt.org
+ou: Alumnes
+uid: anna
+uidNumber: 5002
+gidNumber: 600
+homeDirectory: /tmp/home/anna
+userPassword:: e1NTSEF9Qm00QjNCdS9mdUg2QmJ5OWxneGZGQXdMWXJLMFJiT3E=
+description: modified description
+homePhone: 93-222-333

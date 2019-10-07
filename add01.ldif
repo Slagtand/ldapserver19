@@ -1,0 +1,16 @@
+dn: cn=Nou Detrinca,ou=usuaris,dc=edt,dc=org
+objectclass: posixAccount
+objectclass: inetOrgPerson
+cn: Nou Detrinca
+cn: el novato
+sn: Nou
+homephone: 555-222-2220
+mail: nou@edt.org
+description: exemple de inserció
+ou: pringaos
+uid: nou
+uidNumber: 5050
+gidNumber: 100
+homeDirectory: /tmp/home/pau
+userPassword: {SSHA}NDkipesNQqTFDgGJfyraLz/csZAIlk2/
+
