@@ -12,6 +12,8 @@ Primer hem de diferenciar entre **autenticació** (*qui sóc*) i **autorització
 
 * Té forma d'arbre
 
+* dn= distinguished name (el FQDN d'una entitat) -> *nom=pep,ou=usuaris,dc=edt,dc=org* .
+
 ## Estructura
 
 L'arbre de l'estructura s'anomena **DIT**.
@@ -37,11 +39,14 @@ L'arbre de l'estructura s'anomena **DIT**.
     |  sn=lopez      |       |   sn=gomez     |
     |  ...           |       |   ...          |
     +----------------+       +----------------+
-
 ```
 
 * Es clasifica per entitats (*cada "caixa"*).
 
 * Cada **entitat** té les seves dades, anomenades **atributs**.
+
+* Guarda les dades a **/var/lib/ldap** i el directori de configuració és **/etc/openldap/slapd.d** .
+
+## Format de les dades
 
 

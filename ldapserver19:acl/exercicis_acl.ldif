@@ -65,7 +65,7 @@ olcAccess: to * by * read
 dn: olcDatabase={1}mdb,cn=config
 changetype: modify
 replace: olcAccess
-olcAccess: to attrs=userPassword by self wirte by * auth
+olcAccess: to attrs=userPassword by self write by * auth
 olcAccess: to * by self read by * search
 
 # 8- Tot usuari pot observar les seves pròpies dades i 
@@ -77,3 +77,6 @@ olcAccess: to * by self read by * search
 dn: olcDatabase={1}mdb,cn=config
 changetype: modify
 replace: olcAccess
+olcAccess: to attrs=userPassword by dn.exact="cn=Pere Pou,ou=usuaris,dc=edt,dc=org" by self write by * auth
+olcAccess: to attrs=mail,homePhone by dn.exact="cn=Anna Pou,ou=usuaris,dc=edt,dc=org" write by self write by * auth by * read
+olcAccess: to * by dn.exact="cn=Anna Pou, ou=usuaris,dc=edt,dc=org" write by self read by * search
