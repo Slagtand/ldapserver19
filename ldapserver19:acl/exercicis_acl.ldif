@@ -16,3 +16,64 @@ olcAccess: to * by dn.exact="cn=Anna Pou,ou=usuaris,dc=edt,dc=org" write by * re
 # 2- L’usuari "Anna Pou" és ajudant d’administració. 
 # Tothom es pot modificar el seu propi email i homePhone. 
 # Tothom pot veure totes les dades de tothom.
+
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+replace: olcAccess
+olcAccess: to attrs=homePhone,mail by dn.exact="cn=Anna Pou,ou=usuaris,dc=edt,dc=org" write by self write
+olcAccess: to * by dn.exact="cn=Anna Pou,ou=usuaris,dc=edt,dc=org" write by * read
+
+# 3- Tot usuari es pot modificar el seu mail. Tothom pot veure
+# totes les dades de tothom.
+
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+replace: olcAccess
+olcAccess: to attrs=mail by self write by * read
+olcAccess: to * by * read
+
+# 4- Tothom pot veure totes les dades de tothom, excepte
+# els mails dels altres
+
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+replace: olcAccess
+olcAccess: to attrs=mail by self write
+olcAccess: to * by * read
+
+# 5- Tot usuari es pot modificar el seu propi password i
+# tothom pot veure totes les dades de tothom
+
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+replace: olcAccess
+olcAccess: to attrs=userPassword by self write by * read
+olcAccess: to * by * read
+
+# 6- Tot usuaris es pot modificar el seu propi password i tothom
+# pot veure totes les dades de tothom, excepte els altres passwords.
+
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+replace: olcAccess
+olcAccess: to attrs=userPassword by self write by * auth
+olcAccess: to * by * read
+
+# 7- Tot usuari es pot modificar el seu propi password i tot
+# usuaris només pot veure les seves pròpies dades.
+
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+replace: olcAccess
+olcAccess: to attrs=userPassword by self wirte by * auth
+olcAccess: to * by self read by * search
+
+# 8- Tot usuari pot observar les seves pròpies dades i 
+# modificar el seu propi password, email i homephone.
+# L'usuari "Anna Pou" pot modificar tots els atributs de tots
+# excepte els passwords, que tampoc pot veure.
+# L'usuari "Pere Pou" pot modificar els passwords de tothom.
+
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+replace: olcAccess
