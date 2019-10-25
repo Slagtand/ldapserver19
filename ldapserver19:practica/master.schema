@@ -1,0 +1,32 @@
+attributetype (1.1.2.1.1 NAME 'x-nommaster'
+    DESC 'Nom del màster al qual el alumne està matriculat'
+    EQUALITY caseIgnoreMatch
+    SUBSTR caseIgnoreSubstringsMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+    SINGLE-VALUE )
+
+attributetype (1.1.2.1.2 NAME 'x-nota'
+    DESC 'nota del màster'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+    SINGLE-VALUE )
+
+attributetype (1.1.2.1.3 NAME 'x-web'
+    DESC 'pagina web del alumne'
+    EQUALITY caseExactMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+attributetype (1.1.2.1.4 NAME 'x-foto'
+    DESC 'foto del alumne'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+
+attributetype (1.1.2.1.5 NAME 'x-matriculat'
+    DESC 'alumne matriculat al master'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+    SINGLE-VALUE )
+
+objectclass ( 1.1.2.2.1 NAME 'x-Master'
+    DESC 'Info dels màsters dels usuaris'
+    SUP TOP
+    AUXILIARY
+    MUST x-equip
+    MAY ( x-dorsal $ x-web $ x-foto $ x-lesionat) )

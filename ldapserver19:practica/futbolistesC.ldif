@@ -1,0 +1,13 @@
+dn: cn=kaka,ou=Productes,dc=edt,dc=org
+objectclass: inetOrgPerson
+objectclass: x-futbolistes
+cn: kaka
+sn: kaka
+x-equip: los pimientos
+x-dorsal: 9
+x-web: www.kaka.com
+x-foto: ///var/tmp/foto.jpg
+x-lesionat: FALSE
+homePhone: 5555-5555
+mail: locrack@dt.org
+
