@@ -90,30 +90,60 @@ docker tag imatge:latest marcgc/mychispas:latest
 # Pujem l'imatge amb un push
 docker push marcgc/mychispas:latest
 # Usualment se sol dir latest com l'última actualització, però li podem donar el nom que volguem i es guardarà com una altre versió
+
+# Podem veure les imatges d'un repositori amb l'opció search
+docker search marcgc
 ```
 
+# Logs
 
+Podem general logs d'un container amb l'opció `logs`
 
+```bash
+docker logs nom-container
+```
 
+# Construir una imatge des de Dockerfile
 
+Dockerfile és un fitxer que conté ordres per crear una imatge segons el que volguem. Per exemple podem agafar una base i afegir-hi alguns fitxers que tinguem al host i que s'instal·lin certs paquets.
 
+```bash
+# Estant al mateix directori
+docker build -t imatge .
+docker build -t ldapserver19:base .
+```
 
+Sintaxi del dockerfile:
 
+```dockerfile
+# ldapserver
+FROM fedora:27  
+LABEL version="1.0"
+LABEL author="@marcgc"
 
+RUN  dnf -y install openldap-servers openldap-clients
+RUN mkdir /opt/docker
 
+COPY * /opt/docker/
 
+RUN chmod +x /opt/docker/startup.sh
 
+WORKDIR /opt/docker
+CMD /opt/docker/startup.sh
+```
 
+# Network
 
+Podem construir diferents networks per als containers
 
-
-
-
-
-
-
-
-
-
-
-
+```bash
+# Observem les que tenim
+docker network ls
+#
+docker network create ldapnet
+docker network create --subnet 172.19.0.0/16 red1
+# Esborrem una network
+docker network rm nom-network
+# Podem aixi engegar una imatge amb aquesta network
+docker run --rm -h ldapserver -d --name ldapserver --network ldapnet marcgc/ldapserver19:schema
+```

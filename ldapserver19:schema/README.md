@@ -1,4 +1,4 @@
-# ldapserver19:base
+# ldapserver19:schemes
 
 ## @slagtand
 
