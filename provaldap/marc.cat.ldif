@@ -1,0 +1,40 @@
+dn: dc=marc,dc=cat
+dc: marc
+description: provaldap 2019
+objectClass: dcObject
+objectClass: organization
+o: marc.cat
+
+dn: ou=socis,dc=marc,dc=cat
+ou: socis
+description: Socis de marc.cat
+objectclass: organizationalunit
+
+dn: idcat=1,ou=socis,dc=marc,dc=cat
+objectclass: indepeOrgPerson
+idcat: 1
+cn: user1
+sn: user1
+sardanes: True
+foto: ///var/tmp/foto1.jpg
+twitter: elmillorsoci
+
+dn: idcat=2,ou=socis,dc=marc,dc=cat
+objectclass: indepeOrgPerson
+idcat: 2
+cn: user2
+sn: user2
+sardanes: True
+foto: ///var/tmp/foto2.jpg
+twitter: socinormalet
+
+dn: idcat=3,ou=socis,dc=marc,dc=cat
+objectclass: indepeOrgPerson
+idcat: 3
+cn: user3
+sn: user3
+sardanes: False
+foto: ///var/tmp/foto3.jpg
+twitter: piolin
+
+##

@@ -1,0 +1,27 @@
+dn: idcat=1,ou=socis,dc=marc,dc=cat
+changetype: modify
+add: objectclass
+objectclass: marchenaAccount
+-
+add: delictes
+delictes: molts
+-
+add: anysComdemna
+anysComdemna: 12
+-
+add: galeres
+galeres: True
+
+dn: idcat=3,ou=socis,dc=marc,dc=cat
+changetype: modify
+add: objectclass
+objectclass: marchenaAccount
+-
+add: delictes
+delictes: soy companyero 
+-
+add: anysComdemna
+anysComdemna: 20
+-
+add: galeres
+galeres: True

@@ -1,0 +1,25 @@
+attributetype (1.1.2.1.1 NAME 'idcat'
+    DESC 'Identificador de l usuari'
+    EQUALITY integerMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+    SINGLE-VALUE )
+
+attributetype (1.1.2.1.2 NAME 'sardanes'
+    DESC 'sap ballar sardanes'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+    SINGLE-VALUE )
+
+attributetype (1.1.2.1.3 NAME 'foto'
+    DESC 'foto del soci'
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+
+attributetype (1.1.2.1.4 NAME 'twitter'
+    DESC 'Twitter del soci'
+    EQUALITY caseExactMatch
+    SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+
+objectclass ( 1.1.2.2.1 NAME 'indepeOrgPerson'
+    DESC 'indepes'
+    SUP inetOrgPerson
+    STRUCTURAL
+    MUST ( idcat $ sardanes $ foto $ twitter ) )
