@@ -4,7 +4,7 @@ LABEL version="0.1"
 LABEL autor="@slagtand"
 LABEL subject="hostpam"
 
-RUN dnf install -y vim procps iproute nmap util-linux-user finger passwd pam_mount nfs-utils
+RUN dnf install -y vim procps iproute nmap util-linux-user finger passwd pam_mount nfs-utils nss-pam-ldapd
 RUN mkdir /opt/docker
 
 COPY * /opt/docker/
