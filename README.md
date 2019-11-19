@@ -14,6 +14,8 @@ Repo per a m06 19-20 de ldapserver
 
 * **ldapserver19:schema** servidor amb diferents esquemes personalitzats.
 
+* **ldapserver19:grups** servidor amb nous grups d'usuaris asix(n)
+
 ## HOSTPAM
 
 * **hostpam19:base** servidor base de hostpam. Al iniciar sessió amb un usuari crearem un directori temporal (tmpfs).
@@ -27,26 +29,26 @@ Repo per a m06 19-20 de ldapserver
     
     * Instal·lar els paquets `pam_mount` i `nfs-utils`
     
-    * Afegir les línies a `system-auth`:
+    * Afegir les línies a `/etc/pam.d/system-auth`:
       
       ```bash
       auth        optional      pam_mount.so
       session     required      pam_mkhomedir.so
       session     required      pam_unix.so
-      session     optional      pam_mount.so    
+      session     optional      pam_mount.so    
       ```
     
-    * Afegir les línies següents a `pam_mount.conf.xml`:
+    * Afegir les línies següents a `/etc/security/pam_mount.conf.xml`:
       
       ```bash
       <!-- Volume definitions -->
-       
-      		<volume user="*" fstype="tmpfs" mountpoint="~/tmp" options="size=100M,uid=%(USER),mode=0775" />
       
-      		<volume user="*" fstype="nfs" server="172.17.0.1" path="/usr/share/man"  mountpoint="~/%(USER)/man" />
+              <volume user="*" fstype="tmpfs" mountpoint="~/tmp" options="size=100M,uid=%(USER),mode=0775" />
+      
+            <!--  <volume user="*" fstype="nfs" server="172.17.0.1" path="/usr/share/man"  mountpoint="~/%(USER)/man" /> -->
       ```
 
-* **hostpam19:auth** contàiner que autentifica tant usuaris locals com d'un servidor ldap i monta els directoris com **base**
+* **hostpam19:auth** contàiner que autentifica tant usuaris locals com d'un servidor ldap (a la mateixa network) i monta els directoris com **base**
   
   ```bash
   # Executem els dos contàiners i els fiquem a una network que haguem creat
@@ -58,7 +60,7 @@ Repo per a m06 19-20 de ldapserver
     
     * Instal·lar el paquet `nss-pam-ldapd`
     
-    * Afegir les línies a `system-auth`:
+    * Afegir les línies a `/etc/pam.d/system-auth`:
       
       ```bash
       auth        sufficient    pam_ldap.so
@@ -68,14 +70,14 @@ Repo per a m06 19-20 de ldapserver
       session     sufficient    pam_ldap.so
       ```
     
-    * Arreglar el fitxer `nslcd.conf`:
+    * Arreglar el fitxer `/etc/nslcd.conf`:
       
       ```bash
       uri ldap://ldapserver
       base dc=edt,dc=org
       ```
     
-    * Arreglar el fitxer `nsswitch.conf`:
+    * Arreglar el fitxer `/etc/nsswitch.conf`:
       
       ```bash
       # Amb aquest ordre dels elements indiquem que primer miri als fitxers locals i, si no el troba, ho pregunti al servidor ldap. Si volguèssim que primer preguntés al servidor només hem de ficar-ho primer
@@ -83,5 +85,3 @@ Repo per a m06 19-20 de ldapserver
       shadow:      files ldap
       group:       files ldap systemd
       ```
-
-

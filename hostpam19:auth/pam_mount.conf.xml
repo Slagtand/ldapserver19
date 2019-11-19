@@ -16,7 +16,7 @@
  
 		<volume user="*" fstype="tmpfs" mountpoint="~/tmp" options="size=100M,uid=%(USER),mode=0775" />
 
-		<volume user="*" fstype="nfs" server="172.17.0.1" path="/usr/share/man"  mountpoint="~/%(USER)/man" />
+	<!--	<volume user="*" fstype="nfs" server="172.17.0.1" path="/usr/share/man"  mountpoint="~/%(USER)/man" /> -->
 
 		<!-- pam_mount parameters: General tunables -->
 
