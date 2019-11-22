@@ -81,5 +81,29 @@ auth       required     pam_permit.so
 auth       sufficient   pam_unix.so
 account    optional     pam_echo.so [auth: %h %s %t %u]
 account    sufficient   pam_permit.so
+```
 
+## Exemples include/substack
+
+A `/etc/pam.d/`:
+
+```bash
+# Original
+
+auth optional pam_echo.so [ executem el include ]
+auth include/substack  proves
+auth required pam_unix.so
+auth optional pam_echo.so [ amb l'include això no surt ]
+
+account optional pam_echo.so [ això surt si o si perque és un altre stack ]
+account include proves
+account sufficient pam_permit.so
+
+
+
+# file proves
+
+auth sufficient pam_permit.so
+
+account optional pam_echo.so [ aixo es un stack extern i un tipus diferent a auth ]
 ```
