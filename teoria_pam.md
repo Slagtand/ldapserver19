@@ -83,6 +83,21 @@ account    optional     pam_echo.so [auth: %h %s %t %u]
 account    sufficient   pam_permit.so
 ```
 
+## Controls
+
+```bash
+required
+[success=ok new_authtok_reqd=ok ignore=ignore default=bad]
+requisite
+[success=ok new_authtok_reqd=ok ignore=ignore default=die]
+sufficient
+[success=done new_authtok_reqd=done default=ignore]
+optional
+[success=ok new_authtok_reqd=ok default=ignore]
+```
+
+
+
 ## Exemples include/substack
 
 A `/etc/pam.d/`:
