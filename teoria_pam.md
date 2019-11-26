@@ -85,20 +85,67 @@ account    sufficient   pam_permit.so
 
 ## Controls
 
+L'opció de controls té uns alies (**required**, **requisite**, **sufficient**, **optional**) amb una sèrie d'opcions predefinides més habituals.
+
 ```bash
 required
 [success=ok new_authtok_reqd=ok ignore=ignore default=bad]
+#
 requisite
 [success=ok new_authtok_reqd=ok ignore=ignore default=die]
+#
 sufficient
 [success=done new_authtok_reqd=done default=ignore]
+#
 optional
 [success=ok new_authtok_reqd=ok default=ignore]
 ```
 
+* `ignore`: Ignora aquesta opció
 
+* `bad`: Marca com **fallo** i **segueix** evaluant.
 
-## Exemples include/substack
+* `die`: Marca com **fallo** i **deixa** d'evaluar.
+
+* `ok`: Marca com **positiu** i **segueix** evaluant.
+
+* `done`: Marca com **positiu** i **deixa** d'evaluar.
+
+* `N`: numero de salts que farà, per exemple *success=2* saltarà dos cops.
+
+* `reset`: Reseteja els valors anteriors.
+
+### Controls predefinits
+
+* `required`: Aquesta opció sempre tindrà que donar **true**. Si dona **false** fallarà però **segueix** preguntant a la següent regla.
+
+* `requisite`: Aquesta opción ha de donar **true**. Si dona **false** finalitza, no passa a la següent regla i surt.
+
+* `sufficient`: Si dona **true** ja no evalua més del stack. Si dona **false** ho ignora i segueix amb la següent regla del stack.
+
+* `optional`: Intentarà fer el que se li demana, tant si dona true/false i no afectarà a les demés regles, a no ser que sigui la única a evaluar.
+
+* `include`: Inclou altres mòduls de regles que es troben a altres fitxers i les tracta com si fóssin al mateix fitxer.
+
+* `substack`: Com l'**include** però té un comportament diferent si troba un *done/die*.
+
+### Diferències entre include/substack
+
+Tot i que tots dos fan el "mateix" tenen un comportament diferent quan troben un *done/die*.
+
+* En el cas de l'**include** quan troba un *done/die* **finalitza** l'evaluació del stack en el que es troba. En el següent cas, en el moment que trobi un dels dos **deixarà** d'evaluar les regles que **ha importat i el propi stack on es troba**, per això no mostrarà el segon echo i si el del **account**.
+  
+  ```bash
+  auth optional pam_echo.so [ executem el include ]
+  auth include proves
+  auth optional pam_echo.so [ amb l'include això no surt ]
+  
+  account optional pam_echo.so [ això surt si o si perque és un altre stack ]
+  ```
+
+* Al contrari, amb el **substack** només finalitza el stack de les regles **importades** i **segueix** evaluant les següents. Amb l'exemple anterior mostrarà tots els echos, perquè l'últim **auth** no ha estat importat
+
+### Exemples include/substack
 
 A `/etc/pam.d/`:
 
@@ -114,11 +161,17 @@ account optional pam_echo.so [ això surt si o si perque és un altre stack ]
 account include proves
 account sufficient pam_permit.so
 
-
-
 # file proves
 
 auth sufficient pam_permit.so
 
 account optional pam_echo.so [ aixo es un stack extern i un tipus diferent a auth ]
 ```
+
+## Arguments
+
+### Contrasenyes
+
+Els arguments tipus `pam_unix.so, pam_ldap.so, pam_mount.so...` que requereixen contrasenya tenen diferents **atributs** per gestionar-les.
+
+* Per defecte si no té atributs es demanarà contrasenya.
