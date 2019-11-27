@@ -175,3 +175,214 @@ account optional pam_echo.so [ aixo es un stack extern i un tipus diferent a aut
 Els arguments tipus `pam_unix.so, pam_ldap.so, pam_mount.so...` que requereixen contrasenya tenen diferents **atributs** per gestionar-les.
 
 * Per defecte si no té atributs es demanarà contrasenya.
+* `try_first_pass`: Si s'ha introduït una contrasenya anteriorment la fa servir, si no la demana.
+* `use_first_pass`: Fa servir la contrasenya introduïda anteriorment. Si no se n'ha introduït cap no en farà servir.
+* `nullok`: Permet l'accés a usuaris sense contrasenya.
+
+`password requisite pam_pwquality.so` estableix les regles per a definir condicions de les contrasenyes.
+
+`/etc/security/pwquality.conf` és el fitxer de les condicions.
+
+### Restriccions
+
+Apliquem les restriccions amb `pam_succeed_if.so`.
+
+```bash
+# Si l'usuari és pere
+auth required pam_succeed_if.so user = pere
+# Si l'usuari no és pere
+auth required pam_succeed_if.so user != “pere”
+# Si té un uid major que 1000
+auth required pam_succeed_if.so uid > 1000
+```
+
+* Una altre forma de restringir és creant un control propi.
+
+* En el següent exemple trobem que, si l'uid de l'user és `uid=1001` saltarà una línia i se li denegarà l'accés pel `pam_deny.so`. En cas de que no ho sigui s'ignora la línia del `pam_succeed_if.so` i s'evaluarà la següent línia.
+  
+  ```bash
+  # Si l'user té d'uid 1001 el denega, si no accedeix
+  auth [success=1 default=ignore] pam_succeed_if.so debug uid = 1001
+  auth sufficient pam_permit.so
+  auth sufficient pam_deny.so
+  ```
+
+També podem aplicar restriccions amb el temps amb el mòdul `pam_time.so`.
+
+Sol funciona al stack **account** i junt amb el fitxer `/etc/security/time.conf`.
+
+* La sintaxi és la següent `services;ttys;users;times`
+  
+  * `services`: Fa referència als serveis que afectarà.
+  
+  * `ttys`: Fa referència als ttys on s'aplicarà. Per defecte ho deixarem per a tots.
+  
+  * `users`: Fa referència a l'user o usuaris que es veuràn afectats.
+  
+  * `times`: El temps (dia/dies) amb les hores. Si volem ficar dies seguits ho haurem de fer amb més d'una regla (des de la hora x fins les 12 per a un dia, i des de les 12 de l'altre dia fins el que volguem)
+
+* En el següent exemple bloquejem a l'user `local1` de 8h a 24h tota la setmana:
+  
+  ```bash
+  services;ttys;users;times
+  chfn;*;local1;Al0800-2400
+  # De 8h del dilluns a les 10h del dimarts
+  chfn;*;local1;Mo0800-2400
+  chfn;*;local1:Tu0000-1000
+  ```
+
+* Hi han diferents combinacions:
+  
+  ```bash
+  Cada dia té el seu nom:
+      Mo = Dilluns
+      Tu = Dimarts
+      We = Dimecres
+      Th = Dijous
+      Fr = Divendres
+      Sa = Dissabte
+      Su = Diumenge
+  També hi han agrupacions predefinides:
+      Wk = Dies laborals (dilluns-divendres)
+      Wd = Cap de setmana (dissabte-diumenge)
+  Tambe podem definir agrupacions (l'ordre d'aquests és indiferent), tenint en ćompte que dos dies repetits s'anulen:
+      MoMo = Al ser repetit s'anula
+      MoWk = Tots els dies laborables menys el dilluns
+      AlFr = Tots els dies excepte divendres.
+  El rang de les hores és un rang tipus HHMM-HHMM en mode 24H
+  ```
+
+## Homedir
+
+Podem indicar que, al iniciar l'usuari una sessió, se li crei el home si no el té.
+
+Es fica al stack de **session**.
+
+```bash
+# Fitxer system-auth
+session     required      pam_mkhomedir.so silent umask=0007
+```
+
+## Montatges
+
+Amb `pam_mount.so` podem crear punts de muntatge de diferents serveis.
+
+Ha d'estar al stack d'**auth** i **session** amb el control principal, abans de **sufficient** o **included**.
+
+```bash
+# Fitxer system-auth
+auth    optional    pam_mount.so
+auth    sufficient  pam_ldap.so use_first_pass
+auth    required    pam_unix.so use_first_pass
+account sufficient  pam_ldap.so
+session optional    pam_mount.so
+```
+
+**Important**: Si ho volem executar a un contàiner l'hem d'arrencar amb l'opció `--privileged`, si no no podrà montar res.
+
+Els volums a montar es defineixen a `/etc/security/pam_mount.conf.xml`.
+
+```bash
+# tmpfs
+<volume    user="*"     fstype="tmpfs"     mountpoint="~/tmp"
+       options="size=100M,uid=%(USER),mode=0775" />
+# nfs
+<volume user="*" fstype="nfs" server="fileserver" path="/home/%(USER)" mountpoint="~" />
+
+# sshfs
+<volume user="*" fstype="fuse" path="sshfs#%(USER)@fileserver:" mountpoint="~" />
+
+# smbfs
+<volume user="user" fstype="smbfs" server="krueger" path="public"
+mountpoint="/home/user/krueger" />
+```
+
+* Per a exportar primer hem d'indicar-ho a `/etc/exports`:
+  
+  ```bash
+  /usr/share/man *(ro,sync)
+  /usr/share/doc *(ro,sync)
+  ```
+
+* Podem sapiguer què estem exportant amb l'ordre `exportfs -s`.
+
+## Exemple de *system-auth* per a ldap
+
+* Afegim les línies `pam_ldap.so` a `/etc/pam.d/system-auth`
+
+```bash
+#%PAM-1.0
+# This file is auto-generated.
+# User changes will be destroyed the next time authconfig is run.
+auth        required      pam_env.so
+auth        optional      pam_mount.so
+auth        sufficient    pam_unix.so try_first_pass nullok
+auth        sufficient    pam_ldap.so try_first_pass
+auth        required      pam_deny.so
+
+account     sufficient      pam_unix.so
+account     sufficient    pam_ldap.so
+account     required      pam_deny.so
+
+password    requisite     pam_pwquality.so try_first_pass local_users_only retry=3 authtok_type=
+password    sufficient    pam_unix.so try_first_pass use_authtok nullok sha512 shadow
+password  sufficient      pam_ldap.so try_first_pass
+password    required      pam_deny.so
+
+session     optional      pam_keyinit.so revoke
+session     required      pam_limits.so
+-session     optional      pam_systemd.so
+session     [success=1 default=ignore] pam_succeed_if.so service in crond quiet use_uid
+session     required      pam_mkhomedir.so
+session     optional      pam_mount.so
+session     sufficient      pam_unix.so
+session     sufficient      pam_ldap.so
+```
+
+* Afegim les dades del ldap al fitxer `/etc/nslcd.conf`
+  
+  ```bash
+  # The uri pointing to the LDAP server to use for name lookups.
+  # Multiple entries may be specified. The address that is used
+  # here should be resolvable without using LDAP (obviously).
+  #uri ldap://127.0.0.1/
+  #uri ldaps://127.0.0.1/
+  #uri ldapi://%2fvar%2frun%2fldapi_sock/
+  # Note: %2f encodes the '/' used as directory separator
+  uri ldap://ldapserver
+  
+  # The distinguished name of the search base.
+  base dc=edt,dc=org
+  ```
+
+* Canviem l'ordre per a que demani primer les dades al ldap en comptes dels fitxers locals a `/etc/nsswitch.conf`
+  
+  ```bash
+  passwd:      ldap files systemd
+  shadow:      ldap files
+  group:       ldap files systemd
+  ```
+
+* Podem comprovar si ha funcionat amb l'ordre `getent passwd user`. Si ens dona la info de l'usuari ldap està tot correcte.
+
+### Authconfig
+
+`Authconfig` és una ordre que ens edita i configura directament el fitxer `system-auth` segons els paràmetres que li passem. Podem veure els paràmetres que li podem passar amb `authconfig --help` i `man authconfig`.
+
+* Exemple d'ordre amb `authconfig` si volguèssim configurar el server per a que es comuniqui amb un server ldap sense tindre que tocar-ho manualment:
+  
+  ```bash
+  authconfig --enableshadow --enablelocauthorize \
+     --enableldap \
+     --enableldapauth \
+     --ldapserver='ldapserver' \
+     --ldapbase='dc=edt,dc=org' \
+     --enablemkhomedir \
+     --updateall
+  ```
+
+* `enableldap` modifica els fitxer `nsswitch.conf` i `nslcd.conf` per a tindre accés al servidor ldap.
+
+* `enableldapauth` afegeix les línies `pam_ldap.so` al fitxer `system-auth`.
+
+* `enablemkhomedir` afegeix `pam_mkhomedir.so` al fitxer `system-auth`.
