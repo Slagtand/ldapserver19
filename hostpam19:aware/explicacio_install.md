@@ -1,12 +1,6 @@
 # Examen hostpam19:aware
 
-## Marc Gómez
-
-## isx47797439 HISX2
-
-
-
-
+Construim el container amb el Dockerfile. Un cop creat, hi entrem i executem el fitxer *install.sh*.
 
 * Descarreguem/executem el container:
   
