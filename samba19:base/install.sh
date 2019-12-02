@@ -12,3 +12,12 @@ cp /opt/docker/*.md /var/lib/samba/privat/.
 
 cp /opt/docker/smb.conf /etc/samba/smb.conf
 
+useradd lila
+useradd patipla
+useradd roc
+useradd pla
+
+echo -e "lila\nlila" | smbpasswd -a lila
+echo -e "patipla\npatipla" | smpasswd -a patipla
+echo -e "roc\nroc" | smbpasswd -a roc
+echo -e "pla\npla" | smbpasswd -a pla

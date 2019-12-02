@@ -5,6 +5,6 @@
 
 /opt/docker/install.sh && echo "Install Ok"
 /usr/sbin/smbd && echo "smb Ok"
-/usr/sbin/nmbd && echo "nmb  Ok"
+/usr/sbin/nmbd -F && echo "nmb  Ok"
 /bin/bash
 
