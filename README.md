@@ -1,87 +1,80 @@
-# ldapserver19
+# SAMBA
+## @edt ASIX M06 2018-2019
 
-## @slagtand Marc Gómez ASIX M06-ASO Curs 2019-2020
+Podeu trobar les imatges docker al Dockehub de [edtasixm06](https://hub.docker.com/u/edtasixm06/)
 
-Repo per a m06 19-20 de ldapserver
+Podeu trobar la documentació del mòdul a [ASIX-M06](https://sites.google.com/site/asixm06edt/)
 
-## LDAPSERVER
 
-* **ldapserver19:base** servidor ldap bàsic
+ASIX M06-ASO Escola del treball de barcelona
 
-* **ldapserver19:multi** servidor amb dues bases de dades, dc=edt,dc=org i dc=m06,dc=cat
+### Imatges:
 
-* **ldapserver19:acl** servidor amb fitxer de configuració de permisos acl
+* **edtasixm06/samba:18base** Servidor SAMBA bàsic amb *shares* d'exemple.
 
-* **ldapserver19:schema** servidor amb diferents esquemes personalitzats.
 
-* **ldapserver19:grups** servidor amb nous grups d'usuaris asix(n)
+#### Execució
 
-## HOSTPAM
+```
+docker run --rm --name samba -h samba --net sambanet -it edtasixm06/samba:18base 
+```
 
-* **hostpam19:base** servidor base de hostpam. Al iniciar sessió amb un usuari crearem un directori temporal (tmpfs).
-  
-  ```bash
-  # Hem d'arrencar aquest contàiner amb l'opció --privileged, aixi podrà montar els volums.
-  docker run --name pam -h pam --net ldapnet --privileged -it marcgc/hostpam19:base /bin/bash
-  ```
-  
-  * Requisits:
-    
-    * Instal·lar els paquets `pam_mount` i `nfs-utils`
-    
-    * Afegir les línies a `/etc/pam.d/system-auth`:
-      
-      ```bash
-      auth        optional      pam_mount.so
-      session     required      pam_mkhomedir.so
-      session     required      pam_unix.so
-      session     optional      pam_mount.so    
-      ```
-    
-    * Afegir les línies següents a `/etc/security/pam_mount.conf.xml`:
-      
-      ```bash
-      <!-- Volume definitions -->
-      
-              <volume user="*" fstype="tmpfs" mountpoint="~/tmp" options="size=100M,uid=%(USER),mode=0775" />
-      
-            <!--  <volume user="*" fstype="nfs" server="172.17.0.1" path="/usr/share/man"  mountpoint="~/%(USER)/man" /> -->
-      ```
+#### Shares d'exemple
 
-* **hostpam19:auth** contàiner que autentifica tant usuaris locals com d'un servidor ldap (a la mateixa network) i monta els directoris com **base**
-  
-  ```bash
-  # Executem els dos contàiners i els fiquem a una network que haguem creat
-  docker run --name ldapserver -h ldapserver --net ldapnet -d marcgc/ldapserver19
-  docker run --name pam -h pam --net ldapnet --privileged -it marcgc/hostpam19:auth /bin/bash
-  ```
-  
-  * Requisits:
-    
-    * Instal·lar el paquet `nss-pam-ldapd`
-    
-    * Afegir les línies a `/etc/pam.d/system-auth`:
-      
-      ```bash
-      auth        sufficient    pam_ldap.so
-      account     sufficient    pam_ldap.so
-      password    sufficient    pam_ldap.so
-      session     sufficient    pam_unix.so
-      session     sufficient    pam_ldap.so
-      ```
-    
-    * Arreglar el fitxer `/etc/nslcd.conf`:
-      
-      ```bash
-      uri ldap://ldapserver
-      base dc=edt,dc=org
-      ```
-    
-    * Arreglar el fitxer `/etc/nsswitch.conf`:
-      
-      ```bash
-      # Amb aquest ordre dels elements indiquem que primer miri als fitxers locals i, si no el troba, ho pregunti al servidor ldap. Si volguèssim que primer preguntés al servidor només hem de ficar-ho primer
-      passwd:      files ldap systemd
-      shadow:      files ldap
-      group:       files ldap systemd
-      ```
+```
+[global]
+        workgroup = MYGROUP
+        server string = Samba Server Version %v
+        log file = /var/log/samba/log.%m
+        max log size = 50
+        security = user
+        passdb backend = tdbsam
+        load printers = yes
+        cups options = raw
+[homes]
+        comment = Home Directories
+        browseable = no
+        writable = yes
+;       valid users = %S
+;       valid users = MYDOMAIN\%S
+[printers]
+        comment = All Printers
+        path = /var/spool/samba
+        browseable = no
+        guest ok = no
+        writable = no
+        printable = yes
+[documentation]
+        comment = Documentació doc del container
+        path = /usr/share/doc
+        public = yes
+        browseable = yes
+        writable = no
+        printable = no
+        guest ok = yes
+[manpages]
+        comment = Documentació man  del container
+        path = /usr/share/man
+        public = yes
+        browseable = yes
+        writable = no
+        printable = no
+        guest ok = yes
+[public]
+        comment = Share de contingut public
+        path = /var/lib/samba/public
+        public = yes
+        browseable = yes
+        writable = yes
+        printable = no
+        guest ok = yes
+[privat]
+        comment = Share d'accés privat
+        path = /var/lib/samba/privat
+        public = no
+        browseable = no
+        writable = yes
+        printable = no
+        guest ok = yes
+```
+
