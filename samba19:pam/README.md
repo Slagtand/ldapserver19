@@ -4,6 +4,16 @@
 
 El que volem aconseguir amb aquesta pràctica és tindre tres contàiners (*ldapserver, samba i pam*) a la mateixa xarxa (*ldapnet*) i que, junt amb el volum *homes*, monti els homes dels usuaris ldap a pam.
 
+## Containers a engegar (si està tot creat)
+
+```bash
+docker run --rm --name ldapserver -h ldapserver --net ldapnet -d marcgc/ldapserver19
+
+docker run --rm --name ldapserver -h ldapserver --net ldapnet --privileged -p 445:445 -p 139:139 -v homes:/tmp/home -it marcgc/samba19:pam /bin/bash
+
+docker run --rm --name hostpam -h hostpam --privileged --network ldapnet -it marcgc/hostpam19:samba /bin/bash
+```
+
 ## Instal·lació
 
 * Ja que volem fer servir un volum de docker primer l'hauriem de crear (si no està creat).
@@ -26,7 +36,7 @@ docker network create ldapnet
   dnf -y install vim procps samba samba-client cifs-utils authconfig nss-pam-ldapd passwd
   ```
 
-* Configurem els fitxers necessaris directament amb authconfig:
+* Configurem els fitxers necessaris directament amb authconfig per a que funcioni el getent:
   
   ```bash
   authconfig --enableshadow --enablelocauthorize \
@@ -62,7 +72,7 @@ docker network create ldapnet
       # Comprovem si el home existeix, si no el crea
       if [ ! -d $homedir ]; then
           mkdir -p $homedir
-          cp -ra /etc/skel/* $homedir/.
+          cp -ra /etc/skel/. $homedir/.
           # Canviem els permisos del directori al de l'user:grup,         perque si no serien els de root
           chown $uid:$gid $homedir
       fi
@@ -135,4 +145,100 @@ docker network create ldapnet
   ```bash
   /sbin/nmbd
   /sbin/smbd
+  # Podem comprovar que funciona o bé amb smbtree o intentar conectar amb smbclient
+  # Pot ser que smbtree ho tinguem que fer uns quants cops fins que respongui
+  [root@samba /]# smbtree
+  SAMBA
+  	\\SAMBA          		Samba 4.7.10
+  		\\SAMBA\IPC$           	IPC Service (Samba 4.7.10)
+  		\\SAMBA\print$         	Printer Drivers
+  # També podem comprovar que es monta des del local si hem mapejat els ports del container amb els del local
+  mount -t cifs -o user="user08",pass="jupiter" //172.18.0.3/user08 /mnt
+  ls -la /mnt/
+  total 3076
+  drwxr-xr-x.  2 root root    0 Aug 21  2018 .
+  dr-xr-xr-x. 18 root root 4096 Sep 25 09:13 ..
+  -rwxr-xr-x.  1 root root   18 Jun 18  2018 .bash_logout
+  -rwxr-xr-x.  1 root root  193 Jun 18  2018 .bash_profile
+  -rwxr-xr-x.  1 root root  231 Jun 18  2018 .bashrc
   ```
+
+# HOSTPAM19:SAMBA
+
+* Instal·lem els usuaris locals (pas 2)
+
+* Instal·lem els paquets necessaris:
+  
+  ```bash
+  dnf -y install vim samba-client cifs-utils authconfig nss-pam-ldapd passwd pam_mount
+  ```
+
+* Configurem els fitxers necessaris:
+  
+  ```bash
+  authconfig --enableshadow --enablelocauthorize \
+   --enableldap \
+   --enableldapauth \
+   --ldapserver='ldapserver' \
+   --ldapbase='dc=edt,dc=org' \
+   --enablemkhomedir \
+   --updateall
+  ```
+
+* Afegim el mòdul *pam_mount.so* a `/etc/pam.d/system-auth`:
+  
+  ```bash
+  #%PAM-1.0
+  # This file is auto-generated.
+  # User changes will be destroyed the next time authconfig is run.
+  auth        required      pam_env.so
+  auth        optional      pam_mount.so
+  auth        sufficient    pam_unix.so try_first_pass nullok
+  auth        sufficient    pam_ldap.so
+  auth        required      pam_deny.so
+  
+  account     sufficient    pam_unix.so
+  account     sufficient    pam_ldap.so
+  account     required      pam_deny.so
+  
+  password    requisite     pam_pwquality.so try_first_pass local_users_only retry=3 authtok_type=
+  password    sufficient    pam_unix.so try_first_pass use_authtok nullok sha512 shadow
+  password    sufficient    pam_ldap.so
+  password    required      pam_deny.so
+  
+  session     optional      pam_keyinit.so revoke
+  session     required      pam_limits.so
+  -session     optional      pam_systemd.so
+  session     [success=1 default=ignore] pam_succeed_if.so service in crond quiet use_uid
+  session     required      pam_mkhomedir.so
+  session     optional      pam_mount.so
+  session     sufficient    pam_unix.so
+  session     sufficient    pam_ldap.so
+  ```
+
+* Afegim l'entrada necessària per que ens monti el home de l'user al fitxer `/etc/security/pam_mount.conf.xml`:
+  
+  ```bash
+  <volume user="*" fstype="cifs" server="samba" path="%(USER)"
+  mountpoint="~/%(USER)" options="user=%(USER)" />
+  ```
+  
+  * Amb `server` especifiquem quin és el servidor. En aquest cas és **samba** perque el nostre container s'anomena aixi.
+  
+  * Amb `path` indiquem on es troba el recurs al que volem accedir. En aquest cas volem accedir al recurs de l'usuari que es logueja.
+  
+  * Amb `mountpoint` indiquem on volem que es monti aquest recurs. En aquest cas és el home de l'usuari.
+  
+  * A `options` li indiquem les opcions que farà servir, en aquest cas li estem indicant l'user.
+
+* Iniciem els serveis:
+  
+  ```bash
+  /sbin/nscd
+  /sbin/nslcd
+  # Comprovem amb getent que està contactant amb el server ldap
+  getent passwd
+  # Si ens retorna els usuaris ldap funciona correctament. Si no hauriem de mirar que el servidor ldap funcionés bé, o que estigués engegat.
+  ```
+
+
