@@ -165,13 +165,13 @@ docker network create ldapnet
 
 # HOSTPAM19:SAMBA
 
-* Instal·lem els usuaris locals (pas 2)
-
 * Instal·lem els paquets necessaris:
   
   ```bash
   dnf -y install vim samba-client cifs-utils authconfig nss-pam-ldapd passwd pam_mount
   ```
+
+* Instal·lem els usuaris locals (pas 2)
 
 * Configurem els fitxers necessaris:
   
