@@ -149,9 +149,9 @@ docker network create ldapnet
   # Pot ser que smbtree ho tinguem que fer uns quants cops fins que respongui
   [root@samba /]# smbtree
   SAMBA
-  	\\SAMBA          		Samba 4.7.10
-  		\\SAMBA\IPC$           	IPC Service (Samba 4.7.10)
-  		\\SAMBA\print$         	Printer Drivers
+      \\SAMBA                  Samba 4.7.10
+          \\SAMBA\IPC$               IPC Service (Samba 4.7.10)
+          \\SAMBA\print$             Printer Drivers
   # També podem comprovar que es monta des del local si hem mapejat els ports del container amb els del local
   mount -t cifs -o user="user08",pass="jupiter" //172.18.0.3/user08 /mnt
   ls -la /mnt/
@@ -219,7 +219,7 @@ docker network create ldapnet
 * Afegim l'entrada necessària per que ens monti el home de l'user al fitxer `/etc/security/pam_mount.conf.xml`:
   
   ```bash
-  <volume user="*" fstype="cifs" server="samba" path="%(USER)"
+  <volume user="user08" fstype="cifs" server="samba" path="%(USER)"
   mountpoint="~/%(USER)" options="user=%(USER)" />
   ```
   
@@ -240,5 +240,3 @@ docker network create ldapnet
   getent passwd
   # Si ens retorna els usuaris ldap funciona correctament. Si no hauriem de mirar que el servidor ldap funcionés bé, o que estigués engegat.
   ```
-
-

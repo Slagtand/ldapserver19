@@ -1,0 +1,44 @@
+version: "2"
+services:
+  ldap:
+    image: edtasixm06/ldapserver19:latest
+    container_name: ldapserver
+    hostname: ldapserver
+    ports: 
+      - "389:389"
+    networks:
+     - mynet
+  samba:
+    image: edtasixm06/samba19:pam
+    container_name: samba
+    hostname: samba
+    volumes:
+      - "homes:/tmp/home"
+    ports:
+      - "139:139"
+      - "445:445"
+    networks:
+     - mynet
+  nfs:
+    image: edtasixm06/nfs19:pam
+    container_name: nfs
+    hostname: nfs
+    volumes:
+      - "homes:/tmp/home"
+        #    ports:
+        #- "111:111"
+        #- "2049:2049"
+    privileged: true
+    networks:
+     - mynet
+  pam:
+    image: edtasixm06/hostpam19:nfs
+    container_name: pam
+    hostname: pam
+    networks:
+     - mynet
+    privileged: true
+networks:
+  mynet:
+volumes:
+  homes:
