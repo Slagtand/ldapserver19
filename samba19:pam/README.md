@@ -9,6 +9,8 @@ El que volem aconseguir amb aquesta pràctica és tindre tres contàiners (*ldap
 ```bash
 docker run --rm --name ldapserver -h ldapserver --net ldapnet -d marcgc/ldapserver19
 
+docker run --rm --name samba -h samba --net ldapnet -p 139:139 -p 445:445 -v homes:/tmp/home --privileged -d marcgc/samba19:pam
+
 docker run --rm --name ldapserver -h ldapserver --net ldapnet --privileged -p 445:445 -p 139:139 -v homes:/tmp/home -it marcgc/samba19:pam /bin/bash
 
 docker run --rm --name hostpam -h hostpam --privileged --network ldapnet -it marcgc/hostpam19:samba /bin/bash
