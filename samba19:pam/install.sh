@@ -3,17 +3,8 @@
 # instal.lacio
 # -------------------------------------
 # Creació usuaris
-for user in local1 local2 local3
-do
-    useradd $user
-    echo -e "$user" | passwd --stdin $user
-done
-
-for user in lila patipla roc pla
-do
-    useradd $user
-    echo -e "$user\n$user" | smbpasswd -a $user
-done
+bash /opt/docker/localusers.sh
+bash /opt/docker/sambausers.sh
 
 # Configuració client autenticació ldap
 bash /opt/docker/auth.sh
@@ -28,4 +19,5 @@ cp /opt/docker/*.md /var/lib/samba/privat/.
 cp /opt/docker/smb.conf /etc/samba/smb.conf
 
 # Creació comptes samba i directoris dels usuaris ldap
+# Un cop els serveis estàn actius
 bash /opt/docker/ldapusers.sh
