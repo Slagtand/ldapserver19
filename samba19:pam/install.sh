@@ -20,4 +20,4 @@ cp /opt/docker/smb.conf /etc/samba/smb.conf
 
 # Creació comptes samba i directoris dels usuaris ldap
 # Un cop els serveis estàn actius
-bash /opt/docker/ldapusers.sh
+#bash /opt/docker/ldapusers.sh

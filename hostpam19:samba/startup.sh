@@ -6,5 +6,5 @@
 /opt/docker/install.sh && echo "Install Ok"
 /sbin/nscd && echo "nscd Ok"
 /sbin/nslcd -F && echo "nslcd  Ok"
-/bin/bash
+
 

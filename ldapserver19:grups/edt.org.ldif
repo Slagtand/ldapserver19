@@ -170,7 +170,7 @@ homephone: 555-222-0003
 mail: user03@edt.org
 description: alumne de asix2
 ou: asix2
-uid: user02
+uid: user03
 uidNumber: 7003
 gidNumber: 612
 homeDirectory: /tmp/home/asix2/user03

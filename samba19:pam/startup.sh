@@ -4,9 +4,13 @@
 # -------------------------------------
 
 /opt/docker/install.sh && echo "Install Ok"
+# Configuració ldap
 /sbin/nscd && echo "nscd Ok"
-/sbin/nslcd -F && echo "nslcd  Ok"
+/sbin/nslcd && echo "nslcd  Ok"
+
+# Configuració samba
 /usr/sbin/smbd && echo "smb Ok"
+bash /opt/docker/ldapusers.sh
 /usr/sbin/nmbd -F && echo "nmb  Ok"
-/bin/bash
+
 
