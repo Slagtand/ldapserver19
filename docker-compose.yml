@@ -34,7 +34,7 @@ services:
 #    networks:
 #     - ldapnet
   pam:
-    image: marcgc/hostpam19:nfs
+    image: marcgc/hostpam19:samba
     container_name: pam
     hostname: pam
     networks:
