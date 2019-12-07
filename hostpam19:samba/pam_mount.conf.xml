@@ -16,7 +16,7 @@
  
 		<volume user="*" fstype="tmpfs" mountpoint="~/tmp" options="size=100M,uid=%(USER),mode=0775" />
 
-		<volume user="user08" fstype="cifs" server="samba" path="%(USER)" mountpoint="~/%(USER)" options="user=%(USER)" />
+		<volume user="*" fstype="cifs" server="samba" path="%(USER)" mountpoint="~/%(USER)" options="user=%(USER)" />
 
 		<!-- pam_mount parameters: General tunables -->
 

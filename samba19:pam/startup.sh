@@ -11,6 +11,6 @@
 # Configuració samba
 /usr/sbin/smbd && echo "smb Ok"
 bash /opt/docker/ldapusers.sh
-/usr/sbin/nmbd -F && echo "nmb  Ok"
+/usr/sbin/nmbd -F
 
 
