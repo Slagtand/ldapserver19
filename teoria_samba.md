@@ -251,3 +251,107 @@ Si ambes opcions es troben especificades, prevaleix la última que llegeix.
 #### Admin
 
 `admin users = user` permet definir usuaris que seràn convertits al sistema com a root. És a dir, l'user samba tindrà permisos com a root al sistema.
+
+```bash
+[public]
+      comment = Share de contingut public
+      path = /var/lib/samba/public
+      writable = yes
+      guest ok = yes
+      admin users = lila
+
+```
+
+### Escriptura i lectura
+
+`read only` i `writeable` són equivalents al contrari. És a dir, el *yes* d'un equival al *no* de l'altre.
+
+En el cas de que ambes estiguin especificades, prevaleix la última que llegeix.
+
+#### Sol lectura
+
+`read only = yes` o `writeable = no` són equivalents. Ambes opcions volen dir que sol es pot llegir.
+
+```bash
+[public]
+        comment = Share de contingut public
+        path = /var/lib/samba/public
+        public = yes
+        browseable = yes
+        writable = no
+        guest ok = yes
+```
+
+#### Lectura i escriptura
+
+`read only = no` o `writable = yes` són equivalents.
+
+```bash
+[public]
+        comment = Share de contingut public
+        path = /var/lib/samba/public
+        public = yes
+        browseable = yes
+        read only = no
+        guest ok = yes
+```
+
+#### Llista d'usuaris de lectura
+
+`read list = user1 user2...` llista d'usuaris que **sol** poden llegir. És a dir, els usuaris que es trobin aquí **només** podràn llegir.
+
+```bash
+[public]
+        comment = Share de contingut public
+        path = /var/lib/samba/public
+        public = yes
+        browseable = yes
+        writable = yes
+        read list = rock
+        guest ok = yes
+```
+
+#### Llista d'usuaris d'escriptura
+
+`write list = user1...` llista d'usuaris que podràn escriure en el recurs. S'utilitza en recursos que són sol de lectura.
+
+```bash
+[public]
+        comment = Share de contingut public
+        path = /var/lib/samba/public
+        public = yes
+        browseable = yes
+        writable = no
+        write list = rock
+        guest ok = yes
+```
+
+#### Modes de creació de directoris i fitxers
+
+`create mask = 0600` fa referència a la creació de fitxers, que es crearàn amb aquests permisos.
+
+`directory mask = 0700` fa referència a la creació de directoris, que es crearà amb aquests permisos.
+
+```bash
+[public]
+        comment = Share de contingut public
+        path = /var/lib/samba/public
+        public = yes
+        browseable = yes
+        read only = no
+        guest ok = yes
+        create mask = 0600
+        directory mask = 0700
+```
+
+### Homes
+
+Per defecte a la configuració del samba ja ve un share per la exportació del home dels usuaris.
+
+```bash
+smbclient //samba/lila -U lila%lila
+#
+
+```
+
+
