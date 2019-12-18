@@ -100,7 +100,7 @@ nmblookup -S samba
 
 * `smbclient` i `smbget` fan resolució per `nmb`.
 
-* `mount`, al contrari, fa servir el `dns`. Degut que són diferents no sabrà fer la resolució de nom. Per això, ho fem servir la IP del servidor o editem `/etc/hosts`. Hem d'especificar el tipus `-t` i l'user `-o`.
+* `mount`, al contrari, fa servir el `dns`. Degut que són diferents no sabrà fer la resolució de nom. Per això, o fem servir la IP del servidor o editem `/etc/hosts`. Hem d'especificar el tipus `-t` i l'user `-o`.
 
 ```bash
 mount -t cifs -o guest //172.18.0.2/public /mnt
@@ -114,7 +114,7 @@ També podem accedir, des de l'explorador d'arxius, a un recurs.
 smb://samba/public
 ```
 
-## Configuració i recursos del servidor samba
+## Recursos del servidor samba
 
 * `/etc/samba/lmhosts` equival a `/etc/hosts`
 
@@ -132,9 +132,122 @@ smbpasswd -a lila # Afegim l'user a samba
 * `pdbedit`: Edita o llista els usuaris samba
 
 ```bash
+# Llista els usuaris de samba
 pdbedit -L
     lila:1003:
     roc:1005:
     patipla:1004:
     pla:1006:
 ```
+
+## Configuració del servidor samba
+
+El fitxer de configuració de samba es troba a `/etc/samba/smb.conf/` i és on es defineixen els shares, recursos compartits i configuració global.
+
+* Per defecte sortirem com samba, si volem canviar el nom del servidor ho fem amb la directiva `netbios name`. Aixi, `netbios name = marc`, el nostre servidor es dirà *marc*.
+
+### Estructura dels recursos
+
+Els recursos s'especifiquen entre [] i a sota les opcions que necessiti/volguem
+
+```bash
+[public]
+        comment = Share de contingut public
+        path = /var/lib/samba/public
+        public = yes
+        browseable = yes
+        writable = yes
+        guest ok = yes
+```
+
+### Opcions dels shares
+
+Tenim les següents opcions:
+
+```bash
+path = /dir1/dir2/share # La direcció del que compartim
+comment = share description # Comentari del que compartim
+volume = share name
+browseable = yes/no # Si ho mostrem o no quan fem un smbtree
+max connections = num # Nombre màxim de connexions que admetem
+public = yes/no # Si permetem que sigui public o no, és a dir, tant anònims com users o sol users.
+guest ok = yes/no # Si permetem l'accés a anònim. És equivalent a public
+guest account = unix-useraccount # El compte d'anònim
+guest only = yes/no # Si permetem que NOMÉS hi pugui accedir guest
+valid users = user1 user2 @group1 @group2 ... # Users vàlids. Poden ser user específics o grups
+invalid users = user1 user2 @group1 @group2 ... # Users invàlids
+auto services = user1 user2 @group1 @group2 ...
+admin users = user1 user2 @group1 @group2 ... # Té permisos per escriure com a root
+writable = yes/no # Si es pot escriure o no. És equivalent al contrari de read only
+read only = yes/no # Si és només lectura o no. És equivalent al contrari de writable
+write list = user1 user2 @group1 @group2 ... # Users vàlids per escriure
+read list = user1 user2 @group1 @group2 ... # Users vàlids per llegir el directori
+create mode = 0660 # Si creem algún fitxer, es crearà amb aquests permisos
+directory mode = 0770 # Si creem algún directori, es crearà amb aquests permisos
+```
+
+### Permisos
+
+#### Accés anònim
+
+`guest ok = yes` és equivalent a `public = yes` i permet l'accés al user anònim guest, que al sistema linux es transforma com a `nobody`.
+
+Si ambes opcions es troben especificades, prevaleix la última que llegeix.
+
+```bash
+[public]
+        comment = Share de contingut public
+        path = /var/lib/samba/public
+        public = yes
+        browseable = yes
+        writable = yes
+        guest ok = yes
+```
+
+#### Sol anònim
+
+`guest only = yes` permet únicament l'accés a usuaris anònims. Si intentem accedir com un altre user automàticament farà un mapping a l'usuari anònim.
+
+```bash
+[public]
+        comment = Share de contingut public
+        path = /var/lib/samba/public
+        public = yes
+        browseable = yes
+        writable = yes
+        guest only = yes
+```
+
+#### Llista d'usuaris vàlids
+
+`valid users = user1 user2 @grup1 @grup2` permet l'accés al recurs als usuaris especificats a la llista. Anònim tampoc podrà accedir tot i que estigui indicat al `guesto ok = yes`.
+
+```bash
+[public]
+        comment = Share de contingut public
+        path = /var/lib/samba/public
+        public = yes
+        browseable = yes
+        writable = yes
+        guest ok = yes
+        valid users = lila patipla
+```
+
+#### Llista d'usuaris restringits
+
+`invalid users = user1 user2 userN` indica els usuaris que **NO** poden accedir al recurs. Anònim dependrà de `guest ok`.
+
+```bash
+[public]
+        comment = Share de contingut public
+        path = /var/lib/samba/public
+        public = yes
+        browseable = yes
+        writable = yes
+        guest ok = yes
+        invalid users = lila patipla
+```
+
+#### Admin
+
+`admin users = user` permet definir usuaris que seràn convertits al sistema com a root. És a dir, l'user samba tindrà permisos com a root al sistema.
