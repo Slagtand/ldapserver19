@@ -1,5 +1,6 @@
 #!/bin/bash
 
 bash /opt/docker/install.sh
-/sbin/nscd
-/sbin/nslcd
+
+ulimit -n 1024
+/sbin/slapd -d0
