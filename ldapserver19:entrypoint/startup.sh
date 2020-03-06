@@ -42,5 +42,4 @@ case $1 in
         ;;
 esac
 
-ulimit -n 1024
-/sbin/slapd -d0
+
