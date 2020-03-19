@@ -17,5 +17,6 @@ docker run --rm --name ldap.edt.org -h ldap.edt.org -v ldap-data:/var/lib/ldap -
 
 docker run --rm --name ldap.edt.org -h ldap.edt.org -v ldap-data:/var/lib/ldap -v ldap-config:/etc/openldap -it marcgc/ldapserver19:entrypoint listdn
 
+docker run --rm --name ldap.edt.org -h ldap.edt.org -v ldap-data:/var/lib/ldap -v ldap-config:/etc/openldap -it marcgc/ldapserver19:entrypoint ls /etc/openldap
 
 ```
